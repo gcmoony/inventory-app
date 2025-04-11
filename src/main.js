@@ -47,7 +47,14 @@ app.whenReady().then(() => {
    * THIS IS ALL THE THE IPC COMMUNICATION STUFF
    *
    */
+
+  async function handleUpdateItem(row) {
+    await updateItemById(row.id, row)
+    return row
+  }
+
   ipcMain.handle("db:getAllItems", getAllItems)
+  ipcMain.handle("db:updateItem", (event, args) => handleUpdateItem(args))
 
   /**
    *
@@ -165,6 +172,25 @@ async function deleteItemById(itemId) {
   }
 }
 
+// ========== Update item by ID ===============
+async function updateItemById(itemId, data) {
+  const query = `
+  UPDATE users
+  SET name = ?, username = ?
+  WHERE id = ?
+  `
+  try {
+    const newData = [data.name, data.username, itemId]
+    const updateData = await db.prepare(query).run(newData)
+    return updateData.changes > 0
+      ? { message: `Item id ${itemId} updated` }
+      : { message: `Cannot update Item id ${itemId}, DNE` }
+  } catch (err) {
+    console.log(err)
+    return { message: `Unable to update item with id: ${itemId}` }
+  }
+}
+
 async function testDB() {
   db = new sequalight("poobar.db") //, { verbose: console.log })
   console.log("Testing create: ", await createTable())
@@ -184,5 +210,17 @@ async function testDB() {
   console.log("Testing deletebyID (exist): ", await deleteItemById(1))
   console.log("Testing deletebyID (non-exist): ", await deleteItemById(100))
   console.log("Testing getall after deletion: ", await getAllItems())
+  console.log(
+    "Testing updatebyID (exist): ",
+    await updateItemById(2, { name: "New name", username: "new username" })
+  )
+  console.log(
+    "Testing updatebyID (non-exist): ",
+    await updateItemById(100, {
+      name: "null New name",
+      username: "null new username",
+    })
+  )
+  console.log("Testing getall after update: ", await getAllItems())
   console.log("All testing done!")
 }

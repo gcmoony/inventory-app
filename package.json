@@ -29,8 +29,15 @@
     "vite": "5.4.17"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@fontsource/roboto": "^5.2.5",
+    "@mui/material": "^7.0.2",
+    "@mui/x-data-grid": "^7.28.3",
     "better-sqlite3": "11.9.1",
-    "electron-squirrel-startup": "1.0.1",
+    "electron-squirrel-startup": "1.0.1"
+  },
+  "peerDependencies": {
     "react": "19.1.0",
     "react-dom": "19.1.0"
   }

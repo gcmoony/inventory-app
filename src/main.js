@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from "electron"
+import { app, BrowserWindow, ipcMain } from "electron"
 import path from "node:path"
 import started from "electron-squirrel-startup"
 const sequalight = require("better-sqlite3")
@@ -32,24 +32,35 @@ const createWindow = () => {
 }
 
 app.whenReady().then(() => {
-  createWindow()
   /**
    *
    * =========== DATABASE STUFF HERE TOO ===========
    */
-  db = new sequalight("poobar.db") //, { verbose: console.log })
-  createTable()
-  // insertSingleItem({ name: "Me", username: "myUserName" })
-  getAllItems().then((res) => {
-    // Insert dummy items if the table is empty
-    res.length < 1 && insertDummyItems()
-    // deleteItemById(2)
-    // insertSingleItem({ name: "Me", username: "myUserName" })
-  })
 
-  // ==========6=====================================
+  const startupDB = async () => {
+    testDB()
+  }
+  startupDB()
+
+  /**
+   * ====================================================
+   * THIS IS ALL THE THE IPC COMMUNICATION STUFF
+   *
+   */
+  ipcMain.handle("db:getAllItems", getAllItems)
+
+  /**
+   *
+   *
+   * END OF IPC COMMUNICATION
+   *================================================
+   *
+   */
+
+  // ===============================================
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
+  createWindow()
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow()
@@ -68,39 +79,6 @@ app.on("window-all-closed", () => {
 })
 
 /**
- * ====================================================
- * THIS IS ALL THE THE IPC COMMUNICATION STUFF
- *
- *
- *
- *
- *
- *
- */
-
-/**
- *
- *
- *
- *
- *
- *
- *
- *
- * END OF IPC COMMUNICATION
- *================================================
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
  * ================ ALL DATABASE STUFF ==========
  */
 
@@ -112,7 +90,7 @@ async function createTable() {
   name STRING NOT NULL,
   username STRING NOT NULL UNIQUE)
 `
-  db.exec(query)
+  return await db.exec(query)
 }
 
 // ========= Insert into table =================
@@ -122,18 +100,22 @@ async function insertDummyItems() {
     { name: "Name2", username: "Poo" },
     { name: "Name3", username: "Poop" },
   ]
+  let insertErrors = []
 
   const insertData = db.prepare(`
     INSERT INTO users (name, username) VALUES (?, ?)
     `)
 
-  data.forEach((user) => {
+  data.forEach(async (user) => {
     try {
-      insertData.run(user.name, user.username)
+      await insertData.run(user.name, user.username)
     } catch (err) {
-      console.log(`${user.username} already exists in db`)
+      insertErrors.push(`${user.username} already exists in db`)
     }
   })
+  return insertErrors.length > 0
+    ? { message: "Insertion partially successful", err: insertErrors }
+    : { message: "All items successfully inserted" }
 }
 
 // ======== Insert 1 item into table ===========
@@ -142,7 +124,7 @@ async function insertSingleItem(newItem) {
     INSERT INTO users (name, username) VALUES (?, ?)
     `)
   try {
-    insertData.run(newItem.name, newItem.username)
+    await insertData.run(newItem.name, newItem.username)
     const msg = { message: `${newItem.username} successfully added` }
     return msg
   } catch (err) {
@@ -154,15 +136,17 @@ async function insertSingleItem(newItem) {
 // ============ Selecting all items from table =================
 async function getAllItems() {
   const query = `SELECT * FROM users`
-  const selectData = db.prepare(query).all()
+  const selectData = await db.prepare(query).all()
   return selectData
 }
 
 // ========== Selecting item by ID =================
 async function getItemById(itemId) {
   const query = `SELECT * FROM users WHERE id = ?`
-  const selectData = db.prepare(query).get(itemId)
+  const selectData = await db.prepare(query).get(itemId)
   return selectData
+    ? selectData
+    : { message: `Could not find item with id: ${itemId}` }
 }
 
 // ========== Delete item by ID ===============
@@ -172,9 +156,33 @@ async function deleteItemById(itemId) {
   WHERE id = ?
   `
   try {
-    const deleteData = db.prepare(query).run(itemId)
-    console.log(deleteData)
+    const deleteData = await db.prepare(query).run(itemId)
+    return deleteData.changes > 0
+      ? { message: `Item id ${itemId} deleted` }
+      : { message: `Cannot delete Item id ${itemId}, DNE` }
   } catch (err) {
-    console.log(`Could not delete item with ID: ${itemId}`)
+    return { message: `Unable to delete item with id: ${itemId}` }
   }
+}
+
+async function testDB() {
+  db = new sequalight("poobar.db") //, { verbose: console.log })
+  console.log("Testing create: ", await createTable())
+
+  let res = await getAllItems()
+  console.log("Testing getAll: ", res)
+  if (res.length < 1) {
+    console.log("Testing insert dummies: ", await insertDummyItems())
+  }
+  console.log(
+    "Testing insert single: ",
+    await insertSingleItem({ name: "Me", username: "myUserName" })
+  )
+  console.log("Testing getall after insert: ", await getAllItems())
+  console.log("Testing getbyID (exist): ", await getItemById(1))
+  console.log("Testing getbyID (non-exist): ", await getItemById(100))
+  console.log("Testing deletebyID (exist): ", await deleteItemById(1))
+  console.log("Testing deletebyID (non-exist): ", await deleteItemById(100))
+  console.log("Testing getall after deletion: ", await getAllItems())
+  console.log("All testing done!")
 }

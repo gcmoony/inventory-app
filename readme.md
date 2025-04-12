@@ -1,23 +1,24 @@
-# Electron-Vite-React Starter
+# Electron Inventory App
 
-Finally, a starting point for an Electron App using Vite and React.
+A desktop inventory management application using Electron.
 
 ## How to use
 
 First, clone this repository:
 
 ```
-git clone https://github.com/gcmoony/electron-vite-react-starter.git
+git clone ...
 ```
 
 Then navigate to the project directory:
 
 ```
-cd electron-vite-react-starter
+cd inventory-app
 npm install
 ```
 
 Then run the app:
+
 ```
 npm run start
 ```
@@ -28,14 +29,25 @@ To build the application (using Electron Forge):
 npm run make
 ```
 
-## Why
+## What does it do?
 
-To save some time configuring Electron Forge with Vite and React. Currently,
-Electron Forge doesn't have a guide for setting up this type of project. Some
-things that needed to be done include:
+It's a desktop inventory management app used to manage parts and assemblies. It
+was creating using Electron, with Better-SQLite3 for a database and Vite +
+React.JS for the "frontend". The MVP for this program includes:
 
-- Using the [Forge + Vite template](https://www.electronforge.io/templates/vite)
-- Installing React (19)
-- Importing `Main.jsx` in `renderer.js`
-- Installing `@vitejs/plugin-react` and adding the plugin into
-  `vite.renderer.config.mjs`
+- Ability to create new parts
+- Ability to create assemblies from parts
+- Ability to modify quantities of parts when new assemblies are made
+- Visual alerts for low item quantity
+
+Currently, it is capable of performing the following:
+
+- Creating sample data entries if the database is empty
+- Provide asynchronous calls to the database to satisfy Google MUI requirements
+- Ability to create, update, read, and delete entries (sample format currently,
+  not final)
+
+<!--### Demo
+
+Here's a video demonstration of the application current state in use (0:42)
+<br/> <img src="./public/output.gif" alt="App demo">-->

@@ -1,5 +1,26 @@
-import { DataGrid } from "@mui/x-data-grid"
+import { Button } from "@mui/material"
+import {
+  DataGrid,
+  GridToolbarContainer,
+  useGridApiContext,
+} from "@mui/x-data-grid"
 import { useEffect, useState } from "react"
+
+function CustomToolbar({ setHasChangeHandler }) {
+  const apiRef = useGridApiContext()
+  const toDelete = () => {
+    const res = apiRef.current.getSelectedRows().forEach(async (row) => {
+      console.log(await window.dbAPI.deleteItem(row))
+    })
+    setHasChangeHandler(true)
+  }
+
+  return (
+    <GridToolbarContainer>
+      <Button onClick={toDelete}>Delete Selected</Button>
+    </GridToolbarContainer>
+  )
+}
 
 export default function PartTable() {
   const columns = [
@@ -29,6 +50,10 @@ export default function PartTable() {
   return (
     <>
       <DataGrid
+        slots={{
+          toolbar: () => <CustomToolbar setHasChangeHandler={setHasChange} />,
+        }}
+        checkboxSelection
         rows={dbData}
         columns={columns}
         processRowUpdate={(newRow, oldRow) => {

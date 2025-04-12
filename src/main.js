@@ -38,7 +38,7 @@ app.whenReady().then(() => {
    */
 
   const startupDB = async () => {
-    testDB()
+    await testDB()
   }
   startupDB()
 
@@ -53,8 +53,14 @@ app.whenReady().then(() => {
     return row
   }
 
+  async function handleDeleteItem(row) {
+    const res = await deleteItemById(row.id)
+    return res
+  }
+
   ipcMain.handle("db:getAllItems", getAllItems)
   ipcMain.handle("db:updateItem", (event, args) => handleUpdateItem(args))
+  ipcMain.handle("db:deleteItem", (event, args) => handleDeleteItem(args))
 
   /**
    *

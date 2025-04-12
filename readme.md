@@ -7,7 +7,7 @@ A desktop inventory management application using Electron.
 First, clone this repository:
 
 ```
-git clone ...
+git clone https://github.com/gcmoony/inventory-app.git
 ```
 
 Then navigate to the project directory:

@@ -15,9 +15,15 @@ function CustomToolbar({ setHasChangeHandler }) {
     setHasChangeHandler(true)
   }
 
+  const toAdd = async () => {
+    await window.dbAPI.addItem()
+    setHasChangeHandler(true)
+  }
+
   return (
     <GridToolbarContainer>
       <Button onClick={toDelete}>Delete Selected</Button>
+      <Button onClick={toAdd}>Add Item</Button>
     </GridToolbarContainer>
   )
 }
@@ -54,6 +60,7 @@ export default function PartTable() {
           toolbar: () => <CustomToolbar setHasChangeHandler={setHasChange} />,
         }}
         checkboxSelection
+        disableRowSelectionOnClick
         rows={dbData}
         columns={columns}
         processRowUpdate={(newRow, oldRow) => {

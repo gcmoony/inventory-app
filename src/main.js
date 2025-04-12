@@ -36,7 +36,7 @@ app.whenReady().then(() => {
    *
    * =========== DATABASE STUFF HERE TOO ===========
    */
-
+  db = new sequalight("boofar.db")
   const startupDB = async () => {
     await testDB()
   }
@@ -47,6 +47,10 @@ app.whenReady().then(() => {
    * THIS IS ALL THE THE IPC COMMUNICATION STUFF
    *
    */
+  async function handleAddItem() {
+    const newItem = { name: `Sample Name`, username: "Sample Username" }
+    return await insertSingleItem(newItem)
+  }
 
   async function handleUpdateItem(row) {
     await updateItemById(row.id, row)
@@ -61,6 +65,7 @@ app.whenReady().then(() => {
   ipcMain.handle("db:getAllItems", getAllItems)
   ipcMain.handle("db:updateItem", (event, args) => handleUpdateItem(args))
   ipcMain.handle("db:deleteItem", (event, args) => handleDeleteItem(args))
+  ipcMain.handle("db:addNewItem", handleAddItem)
 
   /**
    *
@@ -109,9 +114,9 @@ async function createTable() {
 // ========= Insert into table =================
 async function insertDummyItems() {
   const data = [
-    { name: "Name1", username: "Po" },
-    { name: "Name2", username: "Poo" },
-    { name: "Name3", username: "Poop" },
+    { name: "Name1", username: "user01" },
+    { name: "Name2", username: "user02" },
+    { name: "Name3", username: "user03" },
   ]
   let insertErrors = []
 
@@ -197,8 +202,8 @@ async function updateItemById(itemId, data) {
   }
 }
 
+// A bunch of cases to test async functionality with sqlite
 async function testDB() {
-  db = new sequalight("poobar.db") //, { verbose: console.log })
   console.log("Testing create: ", await createTable())
 
   let res = await getAllItems()
@@ -208,7 +213,7 @@ async function testDB() {
   }
   console.log(
     "Testing insert single: ",
-    await insertSingleItem({ name: "Me", username: "myUserName" })
+    await insertSingleItem({ name: "Name04", username: "user04" })
   )
   console.log("Testing getall after insert: ", await getAllItems())
   console.log("Testing getbyID (exist): ", await getItemById(1))
@@ -218,7 +223,7 @@ async function testDB() {
   console.log("Testing getall after deletion: ", await getAllItems())
   console.log(
     "Testing updatebyID (exist): ",
-    await updateItemById(2, { name: "New name", username: "new username" })
+    await updateItemById(2, { name: "New name 02", username: "new_user02" })
   )
   console.log(
     "Testing updatebyID (non-exist): ",

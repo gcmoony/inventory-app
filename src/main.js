@@ -91,7 +91,7 @@ app.whenReady().then(() => {
   }
 
   // Users => update to part table
-  ipcMain.handle("db:getAllItems", getAllItems)
+  ipcMain.handle("db:getAllItems", getAllParts)
   ipcMain.handle("db:updateItem", (event, args) => handleUpdateItem(args))
   ipcMain.handle("db:deleteItem", (event, args) => handleDeleteItem(args))
   ipcMain.handle("db:addNewItem", handleAddItem)

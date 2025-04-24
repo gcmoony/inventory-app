@@ -30,8 +30,22 @@ function CustomToolbar({ setHasChangeHandler }) {
 
 export default function PartTable() {
   const columns = [
+    { field: "id", headerName: "Real ID", editable: true },
+    { field: "_id", headerName: "ID", editable: true },
     { field: "name", headerName: "Name", editable: true },
-    { field: "username", headerName: "Username", editable: true },
+    { field: "price", headerName: "Price", editable: true },
+    { field: "cost", headerName: "Cost", editable: true },
+    { field: "sku", headerName: "SKU", editable: true },
+    { field: "map", headerName: "MAP", editable: true },
+    { field: "msrp", headerName: "MSRP", editable: true },
+    { field: "markup", headerName: "Markup", editable: false },
+    { field: "margin", headerName: "Margin", editable: false },
+    { field: "rating", headerName: "Rating", editable: false },
+    { field: "category_01", headerName: "Category 1", editable: true },
+    { field: "category_02", headerName: "Category 2", editable: true },
+    { field: "priority", headerName: "Priority", editable: true },
+    { field: "location", headerName: "Location", editable: true },
+    { field: "source", headerName: "Source", editable: true },
   ]
 
   const [dbData, setDbData] = useState([])

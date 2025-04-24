@@ -3,6 +3,7 @@ import {
   DataGrid,
   GridToolbarContainer,
   useGridApiContext,
+  GridToolbarQuickFilter,
 } from "@mui/x-data-grid"
 import { useEffect, useState } from "react"
 
@@ -22,7 +23,12 @@ function CustomToolbar({ setHasChangeHandler }) {
 
   return (
     <GridToolbarContainer>
-      <Button onClick={toDelete}>Delete Selected</Button>
+      <Button
+        onClick={toDelete}
+        color='error'
+      >
+        Delete Selected
+      </Button>
       <Button onClick={toAdd}>Add Item</Button>
     </GridToolbarContainer>
   )
@@ -30,7 +36,7 @@ function CustomToolbar({ setHasChangeHandler }) {
 
 export default function PartTable() {
   const columns = [
-    { field: "id", headerName: "Real ID", editable: true },
+    // { field: "id", headerName: "Real ID", editable: true },
     { field: "_id", headerName: "ID", editable: true },
     { field: "name", headerName: "Name", editable: true },
     { field: "price", headerName: "Price", editable: true },
@@ -71,7 +77,17 @@ export default function PartTable() {
     <>
       <DataGrid
         slots={{
-          toolbar: () => <CustomToolbar setHasChangeHandler={setHasChange} />,
+          toolbar: () => (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+              }}
+            >
+              <CustomToolbar setHasChangeHandler={setHasChange} />
+              <GridToolbarQuickFilter />
+            </div>
+          ),
         }}
         checkboxSelection
         disableRowSelectionOnClick

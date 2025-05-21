@@ -42,12 +42,10 @@ app.whenReady().then(() => {
   let sampleData = {}
 
   const startupDB = async () => {
-    // await testDB()
-    sampleData = await JSON.parse(fs.readFileSync("./sampleData.json", "utf-8"))
-
     await createPartsTable()
-    await insertDummyParts(sampleData.part_data)
-    await insertSinglePart()
+    if ((await getAllParts()).length < 1) {
+      await insertSinglePart()
+    }
   }
   startupDB()
 
